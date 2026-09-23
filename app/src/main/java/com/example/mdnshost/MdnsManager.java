@@ -59,10 +59,10 @@ public class MdnsManager {
             addresses.add(address);
 
             Method setHostAddresses =
-                    NsdServiceInfo.class.getDeclaredMethod(
-                            "setHostAddresses",
-                            Collection.class
-                    );
+        NsdServiceInfo.class.getDeclaredMethod(
+                "setHostAddresses",
+                java.util.List.class
+        );
 
             setHostAddresses.setAccessible(true);
             setHostAddresses.invoke(serviceInfo, addresses);
