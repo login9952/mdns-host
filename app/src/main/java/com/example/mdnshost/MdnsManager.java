@@ -11,6 +11,11 @@ import java.util.Collection;
 
 public class MdnsManager {
 
+    public interface StatusListener {
+    void onRegistered(String hostname);
+    void onRegistrationFailed(int errorCode);
+}
+    
     private static final String HOST_NAME = "phone";
     private static final String IP_ADDRESS = "192.168.1.61";
 
@@ -18,6 +23,12 @@ public class MdnsManager {
     private NsdManager.RegistrationListener registrationListener;
     private boolean running = false;
 
+    private StatusListener statusListener;
+
+public void setStatusListener(StatusListener listener) {
+    this.statusListener = listener;
+}
+    
     public MdnsManager(Context context) {
         nsdManager =
                 (NsdManager) context.getSystemService(Context.NSD_SERVICE);
@@ -80,6 +91,12 @@ public void onServiceRegistered(
             "MDNS_REGISTERED: "
                     + serviceInfo.getServiceName()
     );
+
+    if (statusListener != null) {
+        statusListener.onRegistered(
+                serviceInfo.getServiceName()
+        );
+    }
 }
 
                         @Override
@@ -93,6 +110,10 @@ public void onRegistrationFailed(
             "MDNS_REGISTRATION_FAILED: "
                     + errorCode
     );
+
+    if (statusListener != null) {
+        statusListener.onRegistrationFailed(errorCode);
+    }
 }
 
                         @Override
