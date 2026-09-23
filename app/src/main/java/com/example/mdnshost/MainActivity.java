@@ -73,6 +73,7 @@ public class MainActivity extends Activity {
 
                 statusText.setText(
                         "mDNS Host\n正在启动..."
+                         "IP：" + mdnsManager.getCurrentIpAddress()
                 );
             }
         });
