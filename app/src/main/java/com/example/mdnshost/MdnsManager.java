@@ -23,7 +23,7 @@ public class MdnsManager {
     void onRegistrationFailed(int errorCode);
 }
     
-    private static final String HOST_NAME = "phone";
+    private String hostName = "phone";
 
     private final NsdManager nsdManager;
     private NsdManager.RegistrationListener registrationListener;
