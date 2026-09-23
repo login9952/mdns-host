@@ -70,20 +70,30 @@ public class MdnsManager {
             registrationListener =
                     new NsdManager.RegistrationListener() {
 
+                       @Override
+public void onServiceRegistered(
+        NsdServiceInfo serviceInfo) {
+
+    running = true;
+
+    System.out.println(
+            "MDNS_REGISTERED: "
+                    + serviceInfo.getServiceName()
+    );
+}
+
                         @Override
-                        public void onServiceRegistered(
-                                NsdServiceInfo serviceInfo) {
+public void onRegistrationFailed(
+        NsdServiceInfo serviceInfo,
+        int errorCode) {
 
-                            running = true;
-                        }
+    running = false;
 
-                        @Override
-                        public void onRegistrationFailed(
-                                NsdServiceInfo serviceInfo,
-                                int errorCode) {
-
-                            running = false;
-                        }
+    System.out.println(
+            "MDNS_REGISTRATION_FAILED: "
+                    + errorCode
+    );
+}
 
                         @Override
                         public void onServiceUnregistered(
