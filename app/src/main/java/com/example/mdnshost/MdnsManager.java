@@ -9,6 +9,12 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import android.net.ConnectivityManager;
+import android.net.LinkAddress;
+import android.net.LinkProperties;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+
 public class MdnsManager {
 
     public interface StatusListener {
@@ -17,7 +23,6 @@ public class MdnsManager {
 }
     
     private static final String HOST_NAME = "phone";
-    private static final String IP_ADDRESS = "192.168.1.61";
 
     private final NsdManager nsdManager;
     private NsdManager.RegistrationListener registrationListener;
@@ -29,10 +34,15 @@ public void setStatusListener(StatusListener listener) {
     this.statusListener = listener;
 }
     
-    public MdnsManager(Context context) {
-        nsdManager =
-                (NsdManager) context.getSystemService(Context.NSD_SERVICE);
-    }
+private final Context context;
+
+public MdnsManager(Context context) {
+
+    this.context = context;
+
+    nsdManager =
+            (NsdManager) context.getSystemService(Context.NSD_SERVICE);
+}
 
     public boolean start() {
 
@@ -61,8 +71,13 @@ public void setStatusListener(StatusListener listener) {
             setHostname.invoke(serviceInfo, HOST_NAME);
 
             // 设置主机 IP 地址
-            InetAddress address =
-                    InetAddress.getByName(IP_ADDRESS);
+            InetAddress address = getCurrentWifiAddress();
+
+            if (address == null) {
+                throw new IllegalStateException(
+                        "没有找到当前 Wi-Fi IPv4 地址"
+                );
+            }
 
             ArrayList<InetAddress> addresses =
                     new ArrayList<>();
@@ -81,40 +96,40 @@ public void setStatusListener(StatusListener listener) {
             registrationListener =
                     new NsdManager.RegistrationListener() {
 
-                       @Override
-public void onServiceRegistered(
-        NsdServiceInfo serviceInfo) {
+                      @Override
+                      public void onServiceRegistered(
+                             NsdServiceInfo serviceInfo) {
 
-    running = true;
+                        running = true;
 
-    System.out.println(
-            "MDNS_REGISTERED: "
-                    + serviceInfo.getServiceName()
-    );
+                        System.out.println(
+                                "MDNS_REGISTERED: "
+                                        + serviceInfo.getServiceName()
+                        );
 
-    if (statusListener != null) {
-        statusListener.onRegistered(
-                serviceInfo.getServiceName()
-        );
-    }
-}
+                        if (statusListener != null) {
+                            statusListener.onRegistered(
+                                    serviceInfo.getServiceName()
+                            );
+                       }
+                     }
 
-                        @Override
-public void onRegistrationFailed(
-        NsdServiceInfo serviceInfo,
-        int errorCode) {
+                     @Override
+                     public void onRegistrationFailed(
+                            NsdServiceInfo serviceInfo,
+                            int errorCode) {
 
-    running = false;
+                         running = false;
 
-    System.out.println(
-            "MDNS_REGISTRATION_FAILED: "
-                    + errorCode
-    );
+                         System.out.println(
+                                 "MDNS_REGISTRATION_FAILED: "
+                                         + errorCode
+                         );
 
-    if (statusListener != null) {
-        statusListener.onRegistrationFailed(errorCode);
-    }
-}
+                        if (statusListener != null) {
+                            statusListener.onRegistrationFailed(errorCode);
+                         }
+                    }
 
                         @Override
                         public void onServiceUnregistered(
@@ -166,6 +181,59 @@ public void onRegistrationFailed(
         return running;
     }
 
+private InetAddress getCurrentWifiAddress() {
+
+    ConnectivityManager connectivityManager =
+            (ConnectivityManager)
+                    context.getSystemService(
+                            Context.CONNECTIVITY_SERVICE
+                    );
+
+    Network[] networks =
+            connectivityManager.getAllNetworks();
+
+    for (Network network : networks) {
+
+        NetworkCapabilities capabilities =
+                connectivityManager.getNetworkCapabilities(
+                        network
+                );
+
+        if (capabilities == null) {
+            continue;
+        }
+
+        if (!capabilities.hasTransport(
+                NetworkCapabilities.TRANSPORT_WIFI
+        )) {
+            continue;
+        }
+
+        LinkProperties linkProperties =
+                connectivityManager.getLinkProperties(
+                        network
+                );
+
+        if (linkProperties == null) {
+            continue;
+        }
+
+        for (LinkAddress linkAddress :
+                linkProperties.getLinkAddresses()) {
+
+            InetAddress address =
+                    linkAddress.getAddress();
+
+            if (address instanceof
+                    java.net.Inet4Address) {
+
+                return address;
+            }
+        }
+    }
+
+    return null;
+}
     private void tryEnableHiddenApis() {
 
         try {
