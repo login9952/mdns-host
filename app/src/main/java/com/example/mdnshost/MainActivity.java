@@ -1,4 +1,3 @@
-```java
 package com.example.mdnshost;
 
 import android.app.Activity;
