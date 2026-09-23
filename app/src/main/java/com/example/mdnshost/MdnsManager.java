@@ -79,7 +79,7 @@ public MdnsManager(Context context) {
 
             NsdServiceInfo serviceInfo = new NsdServiceInfo();
 
-            serviceInfo.setServiceName(hostname);
+            serviceInfo.setServiceName(hostName);
             serviceInfo.setServiceType("_http._tcp");
             serviceInfo.setPort(80);
 
@@ -91,7 +91,7 @@ public MdnsManager(Context context) {
                     );
 
             setHostname.setAccessible(true);
-            setHostname.invoke(serviceInfo, hostname);
+            setHostname.invoke(serviceInfo, hostName);
 
             // 设置主机 IP 地址
             InetAddress address = getCurrentWifiAddress();
