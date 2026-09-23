@@ -14,6 +14,7 @@ import android.net.LinkAddress;
 import android.net.LinkProperties;
 import android.net.Network;
 import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
 
 public class MdnsManager {
 
@@ -42,6 +43,7 @@ public void setStatusListener(StatusListener listener) {
     
 private final Context context;
 private ConnectivityManager.NetworkCallback networkCallback;
+private boolean restarting = false;
 
 public MdnsManager(Context context) {
 
@@ -239,8 +241,8 @@ private void registerNetworkCallback() {
                 }
             };
 
-    ConnectivityManager.NetworkRequest request =
-            new ConnectivityManager.NetworkRequest.Builder()
+NetworkRequest request =
+        new NetworkRequest.Builder()
                     .addTransportType(
                             NetworkCapabilities.TRANSPORT_WIFI
                     )
