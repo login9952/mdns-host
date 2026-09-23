@@ -41,6 +41,7 @@ public void setStatusListener(StatusListener listener) {
 }
     
 private final Context context;
+private ConnectivityManager.NetworkCallback networkCallback;
 
 public MdnsManager(Context context) {
 
@@ -158,6 +159,8 @@ public MdnsManager(Context context) {
                     registrationListener
             );
 
+            registerNetworkCallback();
+            
             return true;
 
         } catch (Exception e) {
@@ -187,6 +190,67 @@ public MdnsManager(Context context) {
     public boolean isRunning() {
         return running;
     }
+    
+private void registerNetworkCallback() {
+
+    ConnectivityManager connectivityManager =
+            (ConnectivityManager)
+                    context.getSystemService(
+                            Context.CONNECTIVITY_SERVICE
+                    );
+
+    if (networkCallback != null) {
+        return;
+    }
+
+    networkCallback =
+            new ConnectivityManager.NetworkCallback() {
+
+                @Override
+                public void onCapabilitiesChanged(
+                        Network network,
+                        NetworkCapabilities networkCapabilities) {
+
+                    if (!networkCapabilities.hasTransport(
+                            NetworkCapabilities.TRANSPORT_WIFI
+                    )) {
+                        return;
+                    }
+
+                    InetAddress address =
+                            getCurrentWifiAddress();
+
+                    if (address == null) {
+                        return;
+                    }
+
+                    String newIp =
+                            address.getHostAddress();
+
+                    if (!newIp.equals(currentIpAddress)) {
+
+                        System.out.println(
+                                "MDNS_NETWORK_CHANGED: "
+                                        + currentIpAddress
+                                        + " -> "
+                                        + newIp
+                        );
+                    }
+                }
+            };
+
+    ConnectivityManager.NetworkRequest request =
+            new ConnectivityManager.NetworkRequest.Builder()
+                    .addTransportType(
+                            NetworkCapabilities.TRANSPORT_WIFI
+                    )
+                    .build();
+
+    connectivityManager.registerNetworkCallback(
+            request,
+            networkCallback
+    );
+}
 
 private InetAddress getCurrentWifiAddress() {
 
