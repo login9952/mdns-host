@@ -40,7 +40,21 @@ public String getCurrentIpAddress() {
 public void setStatusListener(StatusListener listener) {
     this.statusListener = listener;
 }
-    
+public void setHostName(String hostName) {
+
+    if (hostName == null || hostName.trim().isEmpty()) {
+        this.hostName = "phone";
+        return;
+    }
+
+    String name = hostName.trim().toLowerCase();
+
+    if (name.endsWith(".local")) {
+        name = name.substring(0, name.length() - 6);
+    }
+
+    this.hostName = name;
+} 
 private final Context context;
 private ConnectivityManager.NetworkCallback networkCallback;
 private boolean restarting = false;
