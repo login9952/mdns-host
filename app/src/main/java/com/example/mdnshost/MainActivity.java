@@ -63,6 +63,9 @@ public class MainActivity extends Activity {
         );
 
         startButton.setOnClickListener(v -> {
+            
+            String hostname = hostnameInput.getText().toString().trim();
+            mdnsManager.setHostName(hostname);
 
             boolean success = mdnsManager.start();
 
