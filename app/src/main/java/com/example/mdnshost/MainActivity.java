@@ -1,3 +1,4 @@
+```java
 package com.example.mdnshost;
 
 import android.app.Activity;
@@ -23,21 +24,56 @@ public class MainActivity extends Activity {
 
         mdnsManager = new MdnsManager(this);
 
-        statusText.setText("mDNS Host\n已停止");
+        // 接收 mDNS 实际运行状态
+        mdnsManager.setStatusListener(new MdnsManager.StatusListener() {
+
+            @Override
+            public void onRegistered(String hostname) {
+
+                runOnUiThread(() -> {
+
+                    statusText.setText(
+                            "mDNS Host\n" +
+                            "已运行\n\n" +
+                            hostname + ".local"
+                    );
+
+                });
+            }
+
+            @Override
+            public void onRegistrationFailed(int errorCode) {
+
+                runOnUiThread(() -> {
+
+                    statusText.setText(
+                            "mDNS Host\n" +
+                            "启动失败\n\n" +
+                            "错误代码：" + errorCode
+                    );
+
+                });
+            }
+        });
+
+        statusText.setText(
+                "mDNS Host\n已停止"
+        );
 
         startButton.setOnClickListener(v -> {
 
             boolean success = mdnsManager.start();
 
-            if (success) {
-                statusText.setText(
-                        "mDNS Host\n正在启动...\n\n" +
-                        "phone.local\n→ 192.168.1.61"
-                );
-            } else {
+            if (!success) {
+
                 statusText.setText(
                         "mDNS Host\n启动失败\n\n" +
-                        "请查看后续测试结果"
+                        "请查看日志"
+                );
+            } else {
+
+                statusText.setText(
+                        "mDNS Host\n正在启动..."
                 );
             }
         });
@@ -62,3 +98,4 @@ public class MainActivity extends Activity {
         super.onDestroy();
     }
 }
+```
