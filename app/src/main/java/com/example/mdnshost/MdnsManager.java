@@ -229,15 +229,31 @@ private void registerNetworkCallback() {
                     String newIp =
                             address.getHostAddress();
 
-                    if (!newIp.equals(currentIpAddress)) {
+if (!newIp.equals(currentIpAddress)
+        && !restarting) {
 
-                        System.out.println(
-                                "MDNS_NETWORK_CHANGED: "
-                                        + currentIpAddress
-                                        + " -> "
-                                        + newIp
-                        );
-                    }
+    System.out.println(
+            "MDNS_NETWORK_CHANGED: "
+                    + currentIpAddress
+                    + " -> "
+                    + newIp
+    );
+
+    restarting = true;
+
+    stop();
+
+    new android.os.Handler(
+            android.os.Looper.getMainLooper()
+    ).postDelayed(() -> {
+
+        restarting = false;
+
+        start();
+
+    }, 500);
+}
+                    
                 }
             };
 
