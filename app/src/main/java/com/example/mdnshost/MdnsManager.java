@@ -28,6 +28,12 @@ public class MdnsManager {
     private NsdManager.RegistrationListener registrationListener;
     private boolean running = false;
 
+private String currentIpAddress = "";
+
+public String getCurrentIpAddress() {
+    return currentIpAddress;
+}
+
     private StatusListener statusListener;
 
 public void setStatusListener(StatusListener listener) {
@@ -72,13 +78,14 @@ public MdnsManager(Context context) {
 
             // 设置主机 IP 地址
             InetAddress address = getCurrentWifiAddress();
-
             if (address == null) {
                 throw new IllegalStateException(
                         "没有找到当前 Wi-Fi IPv4 地址"
                 );
             }
 
+            currentIpAddress = address.getHostAddress();
+            
             ArrayList<InetAddress> addresses =
                     new ArrayList<>();
 
