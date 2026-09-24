@@ -7,7 +7,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
-
 public class MdnsForegroundService extends Service {
 
     private MdnsManager mdnsManager;
@@ -18,7 +17,7 @@ public class MdnsForegroundService extends Service {
         super.onCreate();
 
         mdnsManager = new MdnsManager(this);
-        
+
         createNotificationChannel();
 
         Notification notification =
@@ -29,9 +28,14 @@ public class MdnsForegroundService extends Service {
                         .build();
 
         startForeground(1, notification);
-        boolean success = mdnsManager.start();
+
+        mdnsManager.start();
     }
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return START_STICKY;
+    }
 
     private void createNotificationChannel() {
 
@@ -48,6 +52,14 @@ public class MdnsForegroundService extends Service {
         manager.createNotificationChannel(channel);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (mdnsManager != null) {
+            mdnsManager.stop();
+        }
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
