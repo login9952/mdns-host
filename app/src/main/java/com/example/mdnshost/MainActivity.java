@@ -5,12 +5,14 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.EditText;
+import android.content.SharedPreferences;
 
 public class MainActivity extends Activity {
 
     private MdnsManager mdnsManager;
     private TextView statusText;
     private EditText hostnameInput;
+    private SharedPreferences preferences;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,6 +22,11 @@ public class MainActivity extends Activity {
 
         statusText = findViewById(R.id.statusText);
         hostnameInput = findViewById(R.id.hostnameInput);
+        preferences = getSharedPreferences("mdns_config", MODE_PRIVATE);
+        String savedHost =
+        preferences.getString("hostname","phone");
+
+        hostnameInput.setText(savedHost);
         
         Button startButton = findViewById(R.id.startButton);
         Button stopButton = findViewById(R.id.stopButton);
@@ -65,6 +72,10 @@ public class MainActivity extends Activity {
         startButton.setOnClickListener(v -> {
             
             String hostname = hostnameInput.getText().toString().trim();
+            preferences.edit()
+                        .putString("hostname", hostname)
+                        .apply();
+            
             mdnsManager.setHostName(hostname);
 
             boolean success = mdnsManager.start();
