@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.os.Handler;
@@ -36,50 +37,43 @@ public class MdnsForegroundService extends Service {
 
         createNotificationChannel();
 
-        Notification notification =
-                new Notification.Builder(this, CHANNEL_ID)
-                        .setContentTitle("mDNS Host")
-                        .setContentText("等待 WiFi")
-                        .setSmallIcon(android.R.drawable.ic_menu_info_details)
-                        .build();
+        Notification notification = new Notification.Builder(this, CHANNEL_ID)
+                .setContentTitle("mDNS Host")
+                .setContentText("等待 WiFi")
+                .setSmallIcon(android.R.drawable.ic_menu_info_details)
+                .build();
 
         startForeground(1, notification);
-
         handler.post(wifiChecker);
     }
 
     private void startMdns() {
-        if (started) {
-            return;
-        }
+        if (started) return;
 
         started = true;
 
+        SharedPreferences prefs = getSharedPreferences("mdns_config", MODE_PRIVATE);
+
+        String hostname = prefs.getString("hostname", "phone");
+        int port = prefs.getInt("port", 80);
+
         mdnsManager = new MdnsManager(this);
+        mdnsManager.setHostName(hostname);
+        mdnsManager.setPort(port);
         mdnsManager.start();
 
-        System.out.println("MDNS_SERVICE_STARTED");
+        System.out.println("MDNS_SERVICE_STARTED " + hostname + ":" + port);
     }
 
     private boolean isWifiConnected() {
-        ConnectivityManager cm =
-                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        if (cm == null) {
-            return false;
-        }
+        ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm == null) return false;
 
         android.net.Network network = cm.getActiveNetwork();
-        if (network == null) {
-            return false;
-        }
+        if (network == null) return false;
 
-        NetworkCapabilities capabilities =
-                cm.getNetworkCapabilities(network);
-
-        return capabilities != null
-                && capabilities.hasTransport(
-                NetworkCapabilities.TRANSPORT_WIFI);
+        NetworkCapabilities nc = cm.getNetworkCapabilities(network);
+        return nc != null && nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
     }
 
     @Override
@@ -88,23 +82,17 @@ public class MdnsForegroundService extends Service {
     }
 
     private void createNotificationChannel() {
+        NotificationChannel channel = new NotificationChannel(
+                CHANNEL_ID,
+                "mDNS 服务",
+                NotificationManager.IMPORTANCE_LOW);
 
-        NotificationChannel channel =
-                new NotificationChannel(
-                        CHANNEL_ID,
-                        "mDNS 服务",
-                        NotificationManager.IMPORTANCE_LOW
-                );
-
-        NotificationManager manager =
-                getSystemService(NotificationManager.class);
-
+        NotificationManager manager = getSystemService(NotificationManager.class);
         manager.createNotificationChannel(channel);
     }
 
     @Override
     public void onDestroy() {
-
         handler.removeCallbacks(wifiChecker);
 
         if (mdnsManager != null) {
