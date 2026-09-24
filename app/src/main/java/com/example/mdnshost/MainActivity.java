@@ -1,4 +1,5 @@
 package com.example.mdnshost;
+
 import android.content.Intent;
 import android.app.Activity;
 import android.os.Bundle;
@@ -13,7 +14,7 @@ public class MainActivity extends Activity {
     private EditText hostnameInput;
     private EditText portInput;
     private SharedPreferences preferences;
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,32 +25,27 @@ public class MainActivity extends Activity {
         hostnameInput = findViewById(R.id.hostnameInput);
         portInput = findViewById(R.id.portInput);
         preferences = getSharedPreferences("mdns_config", MODE_PRIVATE);
-        String savedHost =
-        preferences.getString("hostname","phone");
 
+        String savedHost = preferences.getString("hostname", "phone");
         hostnameInput.setText(savedHost);
-        
+
         Button startButton = findViewById(R.id.startButton);
         Button stopButton = findViewById(R.id.stopButton);
 
-       
+        statusText.setText("mDNS Host\n已停止");
 
-        statusText.setText(
-                "mDNS Host\n已停止"
-        );
+        startButton.setOnClickListener(v -> {
+            Intent serviceIntent = new Intent(this, MdnsForegroundService.class);
+            startForegroundService(serviceIntent);
+
+            statusText.setText("mDNS Host\n运行中");
+        });
 
         stopButton.setOnClickListener(v -> {
+            Intent serviceIntent = new Intent(this, MdnsForegroundService.class);
+            stopService(serviceIntent);
 
-    Intent serviceIntent =
-            new Intent(this, MdnsForegroundService.class);
-
-    stopService(serviceIntent);
-
-
-    statusText.setText(
-            "mDNS Host\n已停止"
-    );
-});
+            statusText.setText("mDNS Host\n已停止");
+        });
     }
-
 }
