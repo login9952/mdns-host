@@ -32,70 +32,24 @@ public class MainActivity extends Activity {
         Button startButton = findViewById(R.id.startButton);
         Button stopButton = findViewById(R.id.stopButton);
 
-        // 接收 mDNS 实际运行状态
-        mdnsManager.setStatusListener(new MdnsManager.StatusListener() {
-
-            @Override
-            public void onRegistered(String hostname) {
-
-                runOnUiThread(() -> {
-
-                    statusText.setText(
-                            "mDNS Host\n" +
-                            "已运行\n\n" +
-                            hostname + ".local"
-                    );
-
-                });
-            }
-
-            @Override
-            public void onRegistrationFailed(int errorCode) {
-
-                runOnUiThread(() -> {
-
-                    statusText.setText(
-                            "mDNS Host\n" +
-                            "启动失败\n\n" +
-                            "错误代码：" + errorCode
-                    );
-
-                });
-            }
-        });
+       
 
         statusText.setText(
                 "mDNS Host\n已停止"
         );
 
-        startButton.setOnClickListener(v -> {
-            
-            String hostname = hostnameInput.getText().toString().trim();
-            preferences.edit()
-                        .putString("hostname", hostname)
-                        .apply();
-            
-            mdnsManager.setHostName(hostname);
-            
-            Intent serviceIntent =
+        stopButton.setOnClickListener(v -> {
+
+    Intent serviceIntent =
             new Intent(this, MdnsForegroundService.class);
-            startForegroundService(serviceIntent);
-            
 
-            if (!success) {
+    stopService(serviceIntent);
 
-                statusText.setText(
-                        "mDNS Host\n启动失败\n\n" +
-                        "请查看日志"
-                );
-            } else {
 
-                statusText.setText(
-                        "mDNS Host\n正在启动...\n\n" +
-                         "IP：" + mdnsManager.getCurrentIpAddress()
-                );
-            }
-        });
+    statusText.setText(
+            "mDNS Host\n已停止"
+    );
+});
 
         stopButton.setOnClickListener(v -> {
 
@@ -107,13 +61,4 @@ public class MainActivity extends Activity {
         });
     }
 
-    @Override
-    protected void onDestroy() {
-
-        if (mdnsManager != null) {
-            mdnsManager.stop();
-        }
-
-        super.onDestroy();
-    }
 }
