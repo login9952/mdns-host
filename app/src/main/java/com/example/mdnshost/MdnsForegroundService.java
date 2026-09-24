@@ -10,12 +10,15 @@ import android.os.IBinder;
 
 public class MdnsForegroundService extends Service {
 
+    private MdnsManager mdnsManager;
     private static final String CHANNEL_ID = "mdns_service";
 
     @Override
     public void onCreate() {
         super.onCreate();
 
+        mdnsManager = new MdnsManager(this);
+        
         createNotificationChannel();
 
         Notification notification =
