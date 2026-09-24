@@ -9,7 +9,6 @@ import android.content.SharedPreferences;
 
 public class MainActivity extends Activity {
 
-    private MdnsManager mdnsManager;
     private TextView statusText;
     private EditText hostnameInput;
     private EditText portInput;
@@ -32,8 +31,6 @@ public class MainActivity extends Activity {
         
         Button startButton = findViewById(R.id.startButton);
         Button stopButton = findViewById(R.id.stopButton);
-
-        mdnsManager = new MdnsManager(this);
 
         // 接收 mDNS 实际运行状态
         mdnsManager.setStatusListener(new MdnsManager.StatusListener() {
@@ -84,7 +81,6 @@ public class MainActivity extends Activity {
             new Intent(this, MdnsForegroundService.class);
             startForegroundService(serviceIntent);
             
-            boolean success = mdnsManager.start();
 
             if (!success) {
 
