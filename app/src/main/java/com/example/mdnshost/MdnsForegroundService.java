@@ -29,6 +29,7 @@ public class MdnsForegroundService extends Service {
                         .build();
 
         startForeground(1, notification);
+        boolean success = mdnsManager.start();
     }
 
 
