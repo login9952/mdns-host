@@ -1,5 +1,5 @@
 package com.example.mdnshost;
-
+import android.content.Intent;
 import android.app.Activity;
 import android.os.Bundle;
 import android.widget.Button;
@@ -79,10 +79,9 @@ public class MainActivity extends Activity {
                         .apply();
             
             mdnsManager.setHostName(hostname);
-
+            
             Intent serviceIntent =
             new Intent(this, MdnsForegroundService.class);
-
             startForegroundService(serviceIntent);
             
             boolean success = mdnsManager.start();
