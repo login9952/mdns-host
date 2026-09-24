@@ -23,7 +23,14 @@
     android:hint="请输入主机名，例如 phone"
     android:inputType="text"
     android:singleLine="true"
-    android:text="phone" />
+    android:text="phone"
+    android:id="@+id/portInput"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:hint="端口，例如 80"
+    android:inputType="number"
+    android:text="80" />
 
     <Button
         android:id="@+id/startButton"
