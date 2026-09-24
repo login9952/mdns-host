@@ -12,6 +12,7 @@ public class MainActivity extends Activity {
     private MdnsManager mdnsManager;
     private TextView statusText;
     private EditText hostnameInput;
+    private EditText portInput;
     private SharedPreferences preferences;
     
     @Override
@@ -22,6 +23,7 @@ public class MainActivity extends Activity {
 
         statusText = findViewById(R.id.statusText);
         hostnameInput = findViewById(R.id.hostnameInput);
+        portInput = findViewById(R.id.portInput);
         preferences = getSharedPreferences("mdns_config", MODE_PRIVATE);
         String savedHost =
         preferences.getString("hostname","phone");
