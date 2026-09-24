@@ -50,15 +50,6 @@ public class MainActivity extends Activity {
             "mDNS Host\n已停止"
     );
 });
-
-        stopButton.setOnClickListener(v -> {
-
-            mdnsManager.stop();
-
-            statusText.setText(
-                    "mDNS Host\n已停止"
-            );
-        });
     }
 
 }
