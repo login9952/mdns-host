@@ -16,8 +16,6 @@ public class MdnsForegroundService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        mdnsManager = new MdnsManager(this);
-
         createNotificationChannel();
 
         Notification notification =
@@ -29,6 +27,7 @@ public class MdnsForegroundService extends Service {
 
         startForeground(1, notification);
 
+        mdnsManager = new MdnsManager(this);
         mdnsManager.start();
     }
 
@@ -38,7 +37,6 @@ public class MdnsForegroundService extends Service {
     }
 
     private void createNotificationChannel() {
-
         NotificationChannel channel =
                 new NotificationChannel(
                         CHANNEL_ID,
@@ -54,11 +52,10 @@ public class MdnsForegroundService extends Service {
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
-
         if (mdnsManager != null) {
             mdnsManager.stop();
         }
+        super.onDestroy();
     }
 
     @Override
